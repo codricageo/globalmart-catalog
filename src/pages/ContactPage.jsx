@@ -20,7 +20,7 @@ const ContactPage = () => {
                 />
               </div>
               <div class="form my-3">
-                <label for="Email">Email</label>
+                <label for="Email">Emailus</label>
                 <input
                   type="email"
                   class="form-control"
