@@ -1,20 +1,10 @@
 version: 0.0
 os: linux
 files:
-  - source: /
-    destination: /var/www/html/globalmart-catalog
-    overwrite: yes
-permissions:
-  - object: /var/www/html/globalmart-catalog
-    pattern: "**"
-    owner: ec2-user
-    group: ec2-user
-    mode: 755
+  - source: /build
+    destination: /usr/share/nginx/html/
 hooks:
   BeforeInstall:
-    - location: scripts/install_dependencies.sh
-      timeout: 300
-      runas: root
     - location: scripts/before_install.sh
       timeout: 300
       runas: root
@@ -22,14 +12,3 @@ hooks:
     - location: scripts/after_install.sh
       timeout: 300
       runas: root
-  ApplicationStart:
-    - location: scripts/start_server.sh
-      timeout: 300
-      runas: root
-  ApplicationStop:
-    - location: scripts/stop_server.sh
-      timeout: 300
-      runas: root
-  ValidateService:
-    - location: scripts/validate_service.sh
-      timeout: 300
