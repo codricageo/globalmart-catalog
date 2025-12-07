@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - echo "=== FORCE REFRESH BUILDSPEC ==="
+      - echo "Node.js version should be 20.x:" 
+      - node --version
+      - npm --version
+      - npm ci
+      - find node_modules/.bin -type f -exec chmod +x {} \;
+  
+  build:
+    commands:
+      - echo "=== DIRECT NODE BUILD ==="
+      - export CI=false
+      - export NODE_ENV=production
+      - echo "Running react-scripts directly with node:"
+      - node node_modules/react-scripts/bin/react-scripts.js build
+      - echo "Build verification:"
+      - ls -la build/
+      - test -f build/index.html && echo "SUCCESS" || exit 1
+
+artifacts:
+  files:
+    - 'build/**/*'
+    - 'scripts/**/*'
+    - 'appspec.yml'
