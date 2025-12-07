@@ -1,21 +1,23 @@
 #!/bin/bash
-# Start Server - Start nginx service
+# Application Start - Start nginx service
 
 echo "Starting nginx server..."
 
 # Start and enable nginx
-sudo systemctl start nginx
-sudo systemctl enable nginx
+systemctl start nginx
+systemctl enable nginx
 
 # Reload nginx to pick up new configuration
-sudo systemctl reload nginx
+systemctl reload nginx
 
 # Check if nginx is running
-if sudo systemctl is-active --quiet nginx; then
-    echo "Nginx started successfully"
+if systemctl is-active --quiet nginx; then
+    echo "SUCCESS: Nginx started successfully"
+    echo "Application is now accessible"
 else
-    echo "Failed to start nginx"
+    echo "ERROR: Failed to start nginx"
+    systemctl status nginx
     exit 1
 fi
 
-echo "Application server started successfully"
+echo "Application Start phase completed successfully"

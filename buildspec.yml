@@ -1,0 +1,35 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo Installing dependencies...
+      - npm ci
+  
+  pre_build:
+    commands:
+      - echo Pre-build phase started on `date`
+      - echo Running tests...
+      - npm test -- --coverage --passWithNoTests
+  
+  build:
+    commands:
+      - echo Build phase started on `date`
+      - echo Building the React application...
+      - npm run build
+      - echo Build completed on `date`
+  
+  post_build:
+    commands:
+      - echo Post-build phase completed on `date`
+
+artifacts:
+  files:
+    - '**/*'
+  name: globalmart-catalog-$(date +%Y-%m-%d-%H-%M-%S)
+  
+cache:
+  paths:
+    - node_modules/**/*
