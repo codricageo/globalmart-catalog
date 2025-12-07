@@ -3,42 +3,19 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 18
+      nodejs: 20
     commands:
-      - echo "=== BYPASSING NPM BUILD - DIRECT APPROACH ==="
-      - echo "Current environment:"
-      - node --version
-      - npm --version
-      - pwd && ls -la
-      - echo "Installing dependencies..."
-      - npm install --no-optional --no-fund --no-audit
-      - echo "Force fixing ALL permissions..."
-      - chmod -R 755 node_modules/
+      - echo "INSTALL PHASE - Installing dependencies"
+      - npm ci
       - chmod -R +x node_modules/.bin/
-      - find node_modules/.bin -type f -exec chmod 755 {} \;
-  
-  pre_build:
-    commands:
-      - echo "=== DIRECT REACT BUILD APPROACH ==="
-      - echo "Checking react-scripts:"
-      - ls -la node_modules/.bin/react-scripts
-      - file node_modules/.bin/react-scripts
-      - echo "Testing direct execution:"
-      - bash -c './node_modules/.bin/react-scripts --version' || echo "Direct execution failed"
   
   build:
     commands:
-      - echo "=== BUILDING WITH DIRECT COMMANDS ==="
-      - echo "Setting NODE_ENV and building..."
-      - export NODE_ENV=production
+      - echo "BUILD PHASE - Building React app"
       - export CI=false
-      - export GENERATE_SOURCEMAP=false
-      - echo "Using node directly to run react-scripts:"
+      - export NODE_ENV=production  
       - node node_modules/react-scripts/bin/react-scripts.js build
-      - echo "Build completed!"
-      - echo "Verifying build output:"
-      - ls -la build/ || echo "No build directory"
-      - test -f build/index.html && echo "SUCCESS - index.html found" || echo "ERROR - Build failed" && exit 1
+      - ls -la build/
   
   post_build:
     commands:
