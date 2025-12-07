@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - echo "=== FRESH BUILD APPROACH ==="
+      - echo "Node version:" && node --version
+      - echo "npm version:" && npm --version
+      - npm ci --only=production
+      - chmod -R 755 node_modules/.bin/
+  
+  build:
+    commands:
+      - echo "=== BUILDING REACT APP ==="
+      - export CI=false
+      - export NODE_ENV=production
+      - export GENERATE_SOURCEMAP=false
+      - node ./node_modules/react-scripts/bin/react-scripts.js build
+      - echo "Build complete - checking output:"
+      - ls -la build/
+      - test -f build/index.html || exit 1
+
+artifacts:
+  files:
+    - 'build/**/*'
+    - 'scripts/**/*' 
+    - 'appspec.yml'
+  name: globalmart-build-$CODEBUILD_BUILD_NUMBER
