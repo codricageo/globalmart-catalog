@@ -5,29 +5,41 @@ phases:
     runtime-versions:
       nodejs: 20
     commands:
+      - echo "=== INSTALL PHASE ==="
       - echo "Node.js version:" && node --version
       - echo "npm version:" && npm --version
+      - echo "Current directory:" && pwd
+      - ls -la
       - echo "Installing dependencies..."
       - npm install
+      - echo "Fixing permissions for all executables..."
+      - find node_modules/.bin -type f -exec chmod +x {} + 2>/dev/null || true
   
   pre_build:
     commands:
+      - echo "=== PRE-BUILD PHASE ==="
       - echo "Pre-build phase started on $(date)"
-      - echo "Fixing permissions..."
-      - find node_modules/.bin -type f -exec chmod +x {} \;
+      - echo "Verifying react-scripts permissions:"
+      - ls -la node_modules/.bin/react-scripts || echo "react-scripts not found"
+      - echo "Making react-scripts executable:"
+      - chmod +x node_modules/.bin/react-scripts
   
   build:
     commands:
+      - echo "=== BUILD PHASE ==="
       - echo "Build phase started on $(date)"
-      - echo "Current directory:" && pwd
-      - echo "Available scripts:"
-      - cat package.json | grep -A 10 '"scripts"'
-      - echo "Building React application using npx..."
+      - echo "Environment variables:"
+      - env | grep -E "(NODE|npm)" || true
+      - echo "Current working directory:"
+      - pwd && ls -la
+      - echo "Testing react-scripts directly:"
+      - ./node_modules/.bin/react-scripts --version || echo "Direct execution failed"
+      - echo "Building React application with npx..."
       - npx react-scripts build
-      - echo "Build completed on $(date)"
+      - echo "Build completed successfully on $(date)"
       - echo "Verifying build output:"
-      - ls -la build/
-      - test -f build/index.html && echo "✓ Build successful" || exit 1
+      - ls -la build/ || echo "Build directory not found"
+      - test -f build/index.html && echo "✓ Build successful - index.html found" || (echo "✗ Build failed - index.html not found" && exit 1)
   
   post_build:
     commands:
