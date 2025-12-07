@@ -1,52 +1,18 @@
 #!/bin/bash
-# After Install - Build React app and configure nginx
+# After Install - Configure nginx for React SPA
 
 echo "Starting After Install phase..."
 
-# Set environment variables
-export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
-export HOME=/root
+# Verify files were deployed
+echo "Checking deployed files:"
+ls -la /usr/share/nginx/html/
 
-cd /home/ec2-user/globalmart-catalog
-
-# Ensure proper ownership
-chown -R ec2-user:ec2-user /home/ec2-user/globalmart-catalog
-
-# Install dependencies with full npm path and proper environment
-echo "Installing npm dependencies..."
-cd /home/ec2-user/globalmart-catalog
-/usr/bin/npm install --production --no-optional --no-audit --no-fund
-
-# Build the React application with explicit paths and environment
-echo "Building React application..."
-export NODE_ENV=production
-/usr/bin/npm run build
-
-# Verify build was successful
-if [ ! -d "/home/ec2-user/globalmart-catalog/build" ]; then
-    echo "ERROR: Build directory not found after npm run build!"
-    echo "Contents of /home/ec2-user/globalmart-catalog:"
-    ls -la /home/ec2-user/globalmart-catalog/
-    echo "Node.js and npm versions:"
-    /usr/bin/node --version
-    /usr/bin/npm --version
-    exit 1
-fi
-
-echo "Build successful! Build directory contents:"
-ls -la /home/ec2-user/globalmart-catalog/build/
-
-# Create nginx web root and copy build files
-echo "Deploying build files to nginx..."
-mkdir -p /usr/share/nginx/html
-rm -rf /usr/share/nginx/html/*
-cp -r /home/ec2-user/globalmart-catalog/build/* /usr/share/nginx/html/
-
-# Set proper permissions for nginx
+# Set proper ownership and permissions
 chown -R nginx:nginx /usr/share/nginx/html
 chmod -R 755 /usr/share/nginx/html
 
-# Configure nginx for React SPA
+# Create nginx configuration for React SPA
+echo "Configuring nginx for React application..."
 cat > /etc/nginx/conf.d/globalmart-catalog.conf << 'EOL'
 server {
     listen 80;
@@ -54,7 +20,7 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
-    # Handle React Router
+    # Handle React Router - serve index.html for all routes
     location / {
         try_files $uri $uri/ /index.html;
     }
@@ -69,14 +35,38 @@ server {
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
 }
 EOL
 
 # Remove default nginx config
 rm -f /etc/nginx/conf.d/default.conf
-rm -f /etc/nginx/sites-enabled/default
 
 # Test nginx configuration
 nginx -t
+if [ $? -eq 0 ]; then
+    echo "✓ Nginx configuration is valid"
+else
+    echo "✗ Nginx configuration error"
+    exit 1
+fi
+
+# Start nginx
+systemctl start nginx
+systemctl enable nginx
+
+# Verify nginx is running
+if systemctl is-active --quiet nginx; then
+    echo "✓ Nginx started successfully"
+    echo "✓ React application deployed successfully!"
+else
+    echo "✗ Failed to start nginx"
+    exit 1
+fi
 
 echo "After Install phase completed successfully"
