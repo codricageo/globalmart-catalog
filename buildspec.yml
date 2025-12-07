@@ -1,60 +1,66 @@
 version: 0.2
 
+env:
+  variables:
+    NODE_VERSION: "20.18.0"
+
 phases:
   install:
-    runtime-versions:
-      nodejs: 20
     commands:
-      - echo "=== INSTALL PHASE ==="
-      - echo "Node.js version:" && node --version
+      - echo "=== CUSTOM NODE.JS INSTALLATION ==="
+      - echo "Current Node.js version:" && node --version || echo "Node.js not found"
+      - echo "Installing Node.js ${NODE_VERSION}..."
+      - curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+      - export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      - nvm install ${NODE_VERSION}
+      - nvm use ${NODE_VERSION}
+      - nvm alias default ${NODE_VERSION}
+      - echo "New Node.js version:" && node --version
       - echo "npm version:" && npm --version
-      - echo "Current directory:" && pwd
-      - ls -la
       - echo "Installing dependencies..."
       - npm install
-      - echo "Fixing permissions for all executables..."
-      - find node_modules/.bin -type f -exec chmod +x {} + 2>/dev/null || true
+      - echo "Setting executable permissions..."
+      - chmod -R +x node_modules/.bin/
   
   pre_build:
     commands:
-      - echo "=== PRE-BUILD PHASE ==="
-      - echo "Pre-build phase started on $(date)"
-      - echo "Verifying react-scripts permissions:"
-      - ls -la node_modules/.bin/react-scripts || echo "react-scripts not found"
-      - echo "Making react-scripts executable:"
-      - chmod +x node_modules/.bin/react-scripts
+      - echo "=== PRE-BUILD VERIFICATION ==="
+      - export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      - nvm use ${NODE_VERSION}
+      - echo "Node.js version:" && node --version
+      - echo "npm version:" && npm --version
+      - echo "react-scripts location and permissions:"
+      - ls -la node_modules/.bin/react-scripts
+      - echo "Testing react-scripts:"
+      - npx react-scripts --version
   
   build:
     commands:
       - echo "=== BUILD PHASE ==="
-      - echo "Build phase started on $(date)"
-      - echo "Environment variables:"
-      - env | grep -E "(NODE|npm)" || true
-      - echo "Current working directory:"
-      - pwd && ls -la
-      - echo "Testing react-scripts directly:"
-      - ./node_modules/.bin/react-scripts --version || echo "Direct execution failed"
-      - echo "Building React application with npx..."
-      - npx react-scripts build
-      - echo "Build completed successfully on $(date)"
-      - echo "Verifying build output:"
-      - ls -la build/ || echo "Build directory not found"
-      - test -f build/index.html && echo "✓ Build successful - index.html found" || (echo "✗ Build failed - index.html not found" && exit 1)
+      - export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      - nvm use ${NODE_VERSION}
+      - echo "Building React application..."
+      - CI=false npx react-scripts build
+      - echo "Build completed successfully!"
+      - echo "Build output verification:"
+      - ls -la build/
+      - test -f build/index.html && echo "SUCCESS - Build artifacts created" || echo "ERROR - Build failed" && exit 1
   
   post_build:
     commands:
-      - echo Post-build phase completed on `date`
-      - echo "Verifying build output..."
-      - test -f build/index.html && echo "✓ index.html found" || echo "✗ index.html missing"
-      - test -d build/static && echo "✓ static directory found" || echo "✗ static directory missing"
+      - echo "=== POST-BUILD ==="
+      - echo "Final verification:"
+      - ls -la build/
+      - du -sh build/
 
 artifacts:
   files:
     - 'build/**/*'
     - 'scripts/**/*'
     - 'appspec.yml'
-  name: globalmart-catalog-build-$(date +%Y-%m-%d-%H-%M-%S)
-  
+  name: globalmart-catalog-$(date +%Y%m%d-%H%M%S)
+
 cache:
   paths:
-    - node_modules/**/*
+    - '$HOME/.nvm/**/*'
+    - 'node_modules/**/*'

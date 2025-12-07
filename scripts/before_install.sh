@@ -1,24 +1,43 @@
 #!/bin/bash
-# Before Install - Setup environment for Amazon Linux 2023
+# Before Install - Setup environment and upgrade Node.js
 
-echo "Starting Before Install phase for Amazon Linux 2023..."
+echo "Starting Before Install phase..."
 
-# Update system packages using dnf
-dnf update -y
+# Check current Node.js version
+echo "Current Node.js version: $(node --version 2>/dev/null || echo 'not installed')"
 
-# Install Node.js 20.x and npm for Amazon Linux 2023
-echo "Installing Node.js 20.x and npm..."
-# Install Node.js 20 from the official repository
+# Remove old Node.js installation
+echo "Removing old Node.js installation..."
+yum remove -y nodejs npm 2>/dev/null || true
+dnf remove -y nodejs npm 2>/dev/null || true
+
+# Clean up old installations
+rm -rf /usr/bin/node /usr/bin/npm /usr/local/bin/node /usr/local/bin/npm 2>/dev/null || true
+
+# Install Node.js 20.x using NodeSource repository
+echo "Installing Node.js 20.x..."
 curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
-dnf install -y nodejs
+
+# Install Node.js and npm
+if command -v dnf &> /dev/null; then
+    echo "Using dnf (Amazon Linux 2023)..."
+    dnf install -y nodejs
+else
+    echo "Using yum (Amazon Linux 2)..."
+    yum install -y nodejs
+fi
 
 # Verify installation
-echo "Node.js version: $(node --version)"
+echo "New Node.js version: $(node --version)"
 echo "npm version: $(npm --version)"
 
-# Create symlinks for global access if needed
-ln -sf /usr/bin/node /usr/local/bin/node 2>/dev/null || true
-ln -sf /usr/bin/npm /usr/local/bin/npm 2>/dev/null || true
+# Update npm to latest version
+echo "Updating npm to latest version..."
+npm install -g npm@latest
+
+echo "Final versions:"
+echo "Node.js: $(node --version)"
+echo "npm: $(npm --version)"
 
 # Install nginx if not already installed
 if ! command -v nginx &> /dev/null; then

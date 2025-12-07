@@ -1,11 +1,18 @@
 #!/bin/bash
-# Install Nginx and prepare environment for Amazon Linux 2023
+# Install Nginx and prepare environment
 
-echo "Installing and configuring nginx on Amazon Linux 2023..."
+echo "Installing and configuring nginx..."
 
-# Update system and install nginx using dnf
-dnf update -y
-dnf install -y nginx
+# Update system packages
+if command -v dnf &> /dev/null; then
+    echo "Using dnf (Amazon Linux 2023)..."
+    dnf update -y
+    dnf install -y nginx
+else
+    echo "Using yum (Amazon Linux 2)..."
+    yum update -y
+    yum install -y nginx
+fi
 
 # Stop nginx if running
 systemctl stop nginx 2>/dev/null || true
