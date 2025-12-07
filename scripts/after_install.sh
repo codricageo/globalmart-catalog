@@ -3,24 +3,38 @@
 
 echo "Starting After Install phase..."
 
+# Set environment variables
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+export HOME=/root
+
 cd /home/ec2-user/globalmart-catalog
 
 # Ensure proper ownership
 chown -R ec2-user:ec2-user /home/ec2-user/globalmart-catalog
 
-# Install npm dependencies as ec2-user
+# Install dependencies with full npm path and proper environment
 echo "Installing npm dependencies..."
-su - ec2-user -c "cd /home/ec2-user/globalmart-catalog && npm ci --only=production"
+cd /home/ec2-user/globalmart-catalog
+/usr/bin/npm install --production --no-optional --no-audit --no-fund
 
-# Build the React application as ec2-user
+# Build the React application with explicit paths and environment
 echo "Building React application..."
-su - ec2-user -c "cd /home/ec2-user/globalmart-catalog && npm run build"
+export NODE_ENV=production
+/usr/bin/npm run build
 
-# Check if build was successful
+# Verify build was successful
 if [ ! -d "/home/ec2-user/globalmart-catalog/build" ]; then
-    echo "ERROR: Build directory not found!"
+    echo "ERROR: Build directory not found after npm run build!"
+    echo "Contents of /home/ec2-user/globalmart-catalog:"
+    ls -la /home/ec2-user/globalmart-catalog/
+    echo "Node.js and npm versions:"
+    /usr/bin/node --version
+    /usr/bin/npm --version
     exit 1
 fi
+
+echo "Build successful! Build directory contents:"
+ls -la /home/ec2-user/globalmart-catalog/build/
 
 # Create nginx web root and copy build files
 echo "Deploying build files to nginx..."

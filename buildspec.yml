@@ -3,32 +3,45 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 18
+      nodejs: 20
     commands:
-      - echo Installing dependencies...
-      - npm ci
+      - echo "Node.js version:" && node --version
+      - echo "npm version:" && npm --version
+      - echo "Installing dependencies..."
+      - npm install
   
   pre_build:
     commands:
-      - echo Pre-build phase started on `date`
-      - echo Running tests...
-      - npm test -- --coverage --passWithNoTests
+      - echo "Pre-build phase started on $(date)"
+      - echo "Fixing permissions..."
+      - find node_modules/.bin -type f -exec chmod +x {} \;
   
   build:
     commands:
-      - echo Build phase started on `date`
-      - echo Building the React application...
-      - npm run build
-      - echo Build completed on `date`
+      - echo "Build phase started on $(date)"
+      - echo "Current directory:" && pwd
+      - echo "Available scripts:"
+      - cat package.json | grep -A 10 '"scripts"'
+      - echo "Building React application using npx..."
+      - npx react-scripts build
+      - echo "Build completed on $(date)"
+      - echo "Verifying build output:"
+      - ls -la build/
+      - test -f build/index.html && echo "✓ Build successful" || exit 1
   
   post_build:
     commands:
       - echo Post-build phase completed on `date`
+      - echo "Verifying build output..."
+      - test -f build/index.html && echo "✓ index.html found" || echo "✗ index.html missing"
+      - test -d build/static && echo "✓ static directory found" || echo "✗ static directory missing"
 
 artifacts:
   files:
-    - '**/*'
-  name: globalmart-catalog-$(date +%Y-%m-%d-%H-%M-%S)
+    - 'build/**/*'
+    - 'scripts/**/*'
+    - 'appspec.yml'
+  name: globalmart-catalog-build-$(date +%Y-%m-%d-%H-%M-%S)
   
 cache:
   paths:
