@@ -69,4 +69,9 @@ else
     exit 1
 fi
 
-echo "After Install phase completed successfully"
+# Run automated cache control
+echo "🔄 Running automated cache control..."
+chmod +x /opt/codedeploy-agent/deployment-root/*/deployment-archive/scripts/cache_control.sh
+/opt/codedeploy-agent/deployment-root/*/deployment-archive/scripts/cache_control.sh
+
+echo "✅ After Install phase completed with cache optimization!"

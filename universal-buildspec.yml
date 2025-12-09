@@ -1,0 +1,49 @@
+# Universal buildspec.yml for React/Node.js projects
+# Copy this to any project for automatic cache-busting
+
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - echo "🚀 Universal Cache-Busting Build Started"
+      - node --version && npm --version
+      - npm ci
+      
+  pre_build:
+    commands:
+      - echo "🧹 Clearing ALL caches universally..."
+      - rm -rf build/ dist/ node_modules/.cache/ ~/.npm/_cacache/
+      - npm cache clean --force
+      
+  build:
+    commands:
+      - echo "🔨 Building with universal cache prevention..."
+      - export CI=false
+      - export NODE_ENV=production
+      - export GENERATE_SOURCEMAP=false
+      # Universal environment variables for ANY project
+      - export REACT_APP_BUILD_TIME=$(date +%Y%m%d-%H%M%S)
+      - export REACT_APP_COMMIT_HASH=$(git rev-parse --short HEAD)
+      - export REACT_APP_BUILD_NUMBER=${CODEBUILD_BUILD_NUMBER:-$(date +%s)}
+      - export REACT_APP_PIPELINE_ID=$(uuidgen | cut -c1-8)
+      - export REACT_APP_CACHE_BUST=$(date +%s)$(shuf -i 1000-9999 -n 1)
+      - echo "📊 Build Info:"
+      - echo "  Time: $REACT_APP_BUILD_TIME"
+      - echo "  Commit: $REACT_APP_COMMIT_HASH"
+      - echo "  Build: $REACT_APP_BUILD_NUMBER"
+      - echo "  Cache ID: $REACT_APP_CACHE_BUST"
+      - npm run build
+      - echo "✅ Universal cache-busting build completed"
+      
+  post_build:
+    commands:
+      - echo "📋 Build verification:"
+      - ls -la build/ 2>/dev/null || ls -la dist/ || echo "No build folder found"
+
+artifacts:
+  files:
+    - '**/*'
+  name: universal-build-$CODEBUILD_BUILD_NUMBER

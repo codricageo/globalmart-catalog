@@ -1,0 +1,22 @@
+{
+  "name": "universal-cache-scripts",
+  "description": "Add these scripts to ANY project's package.json",
+  "scripts": {
+    "build": "react-scripts build",
+    "build:production": "npm run clean && npm run build:cache-bust",
+    "build:cache-bust": "REACT_APP_CACHE_BUST=$(date +%s)$(shuf -i 1000-9999 -n 1) npm run build",
+    "clean": "rm -rf build dist node_modules/.cache",
+    "clean:all": "rm -rf build dist node_modules/.cache ~/.npm/_cacache && npm cache clean --force",
+    "deploy:verify": "node -e \"console.log('🚀 Build Info:', {buildTime: process.env.REACT_APP_BUILD_TIME, commit: process.env.REACT_APP_COMMIT_HASH, cacheBust: process.env.REACT_APP_CACHE_BUST})\"",
+    "cache:status": "echo 'Cache Status:' && ls -la build/static/js/ 2>/dev/null || echo 'No build found'"
+  },
+  "universalCacheConfig": {
+    "description": "Copy these environment variables to your CI/CD:",
+    "envVars": [
+      "REACT_APP_BUILD_TIME=$(date +%Y%m%d-%H%M%S)",
+      "REACT_APP_COMMIT_HASH=$(git rev-parse --short HEAD)",
+      "REACT_APP_BUILD_NUMBER=${CI_BUILD_NUMBER:-$(date +%s)}",
+      "REACT_APP_CACHE_BUST=$(date +%s)$(shuf -i 1000-9999 -n 1)"
+    ]
+  }
+}
