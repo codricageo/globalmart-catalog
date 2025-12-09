@@ -5,10 +5,11 @@ import { useSelector } from 'react-redux'
 const Navbar = () => {
     const state = useSelector(state => state.handleCart)
     
-    // Cache-busting: Always shows current build info
-    const buildTime = process.env.REACT_APP_BUILD_TIME || 'local-dev'
-    const commitHash = process.env.REACT_APP_COMMIT_HASH || 'dev'
-    console.log(`🛒 GlobalMart - Build: ${buildTime}, Commit: ${commitHash}`)
+    // FORCE CACHE BUST - Unique content to force new hash
+    const buildTime = process.env.REACT_APP_BUILD_TIME || new Date().toISOString()
+    const commitHash = process.env.REACT_APP_COMMIT_HASH || Math.random().toString(36)
+    const uniqueId = `CACHE_BUST_${Date.now()}_${Math.random()}`
+    console.log(`🚀 EcomerceWebsite JSTest - Build: ${buildTime}, Commit: ${commitHash}, ID: ${uniqueId}`)
     
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-dark py-3 sticky-top">
