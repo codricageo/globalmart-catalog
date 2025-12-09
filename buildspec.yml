@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 20
+    commands:
+      - echo "=== Installing dependencies ==="
+      - node --version
+      - npm --version
+      - npm ci
+      - chmod -R 755 node_modules/.bin/
+  
+  build:
+    commands:
+      - echo "=== Building React Application ==="
+      - export CI=false
+      - export NODE_ENV=production  
+      - export GENERATE_SOURCEMAP=false
+      - npm run build
+      - echo "Build completed successfully"
+      - ls -la build/static/js/ | head -5
+      - test -f build/index.html && echo "✅ index.html created" || exit 1
+
+artifacts:
+  files:
+    - 'build/**/*'
+    - 'scripts/**/*' 
+    - 'appspec.yml'
+  name: globalmart-build-$CODEBUILD_BUILD_NUMBER
