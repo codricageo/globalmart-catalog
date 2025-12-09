@@ -11,7 +11,7 @@ const Navbar = () => {
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-dark py-3 sticky-top">
             <div className="container">
-                <NavLink className="navbar-brand fw-bold fs-4 px-2 text-white" to="/"> 🛒 GlobalMart LIVE 🛒</NavLink>
+                <NavLink className="navbar-brand fw-bold fs-4 px-2 text-white" to="/"> Test Ci/CD code GlobalMart LIVE </NavLink>
                 <button className="navbar-toggler mx-2" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
