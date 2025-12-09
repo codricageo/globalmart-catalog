@@ -5,8 +5,9 @@ import { useSelector } from 'react-redux'
 const Navbar = () => {
     const state = useSelector(state => state.handleCart)
     
-    // Force bundle hash change - deployment test
-    console.log('GlobalMart Navbar loaded - Deployment Version 2.0', new Date().toISOString())
+    // TESTING DEPLOYMENT - Version 3.0 
+    console.log('🚀 DEPLOYMENT TEST v3.0 - ', new Date().toISOString())
+    console.log('If you see this, deployment is working!')
     
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-dark py-3 sticky-top">
