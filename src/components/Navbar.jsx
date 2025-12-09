@@ -19,7 +19,7 @@ const Navbar = () => {
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-dark py-3 sticky-top">
             <div className="container">
-                <NavLink className="navbar-brand fw-bold fs-4 px-2 text-white" to="/"> EcomerceWebsite JSTest </NavLink>
+                <NavLink className="navbar-brand fw-bold fs-4 px-2 text-white" to="/"> Testin CI/CD cache </NavLink>
                 <button className="navbar-toggler mx-2" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span className="navbar-toggler-icon"></span>
                 </button>
@@ -30,10 +30,10 @@ const Navbar = () => {
                             <NavLink className="nav-link text-white" to="/">🏠 Homes</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink className="nav-link text-white" to="/product">📦 Products Test</NavLink>
+                            <NavLink className="nav-link text-white" to="/product">📦 ProducTest</NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink className="nav-link text-white" to="/about">ℹ️ About This project</NavLink>
+                            <NavLink className="nav-link text-white" to="/about">ℹ️ About CI?CD</NavLink>
                         </li>
                         <li className="nav-item">
                             <NavLink className="nav-link text-white" to="/contact">📞 Contact us now </NavLink>
