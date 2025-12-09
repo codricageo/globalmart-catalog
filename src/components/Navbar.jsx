@@ -5,9 +5,10 @@ import { useSelector } from 'react-redux'
 const Navbar = () => {
     const state = useSelector(state => state.handleCart)
     
-    // TESTING DEPLOYMENT - Version 3.0 
-    console.log('🚀 DEPLOYMENT TEST v3.0 - ', new Date().toISOString())
-    console.log('If you see this, deployment is working!')
+    // Cache-busting: Always shows current build info
+    const buildTime = process.env.REACT_APP_BUILD_TIME || 'local-dev'
+    const commitHash = process.env.REACT_APP_COMMIT_HASH || 'dev'
+    console.log(`🛒 GlobalMart - Build: ${buildTime}, Commit: ${commitHash}`)
     
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-dark py-3 sticky-top">

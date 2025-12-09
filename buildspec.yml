@@ -14,9 +14,16 @@ phases:
   build:
     commands:
       - echo "=== Building React Application ==="
+      - echo "Clearing React build cache..."
+      - rm -rf build/
+      - rm -rf node_modules/.cache/
       - export CI=false
       - export NODE_ENV=production  
       - export GENERATE_SOURCEMAP=false
+      - export REACT_APP_BUILD_TIME=$(date +%Y%m%d-%H%M%S)
+      - export REACT_APP_COMMIT_HASH=$(git rev-parse --short HEAD)
+      - echo "Build timestamp: $REACT_APP_BUILD_TIME"
+      - echo "Commit hash: $REACT_APP_COMMIT_HASH"
       - npm run build
       - echo "Build completed successfully"
       - ls -la build/static/js/ | head -5
